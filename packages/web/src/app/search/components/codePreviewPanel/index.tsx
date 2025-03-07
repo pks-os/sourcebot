@@ -5,7 +5,7 @@ import { base64Decode } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { CodePreview, CodePreviewFile } from "./codePreview";
 import { SearchResultFile } from "@/lib/types";
-
+import { SymbolIcon } from "@radix-ui/react-icons";
 interface CodePreviewPanelProps {
     fileMatch?: SearchResultFile;
     onClose: () => void;
@@ -22,7 +22,7 @@ export const CodePreviewPanel = ({
     repoUrlTemplates,
 }: CodePreviewPanelProps) => {
 
-    const { data: file } = useQuery({
+    const { data: file, isLoading } = useQuery({
         queryKey: ["source", fileMatch?.FileName, fileMatch?.Repository, fileMatch?.Branches],
         queryFn: async (): Promise<CodePreviewFile | undefined> => {
             if (!fileMatch) {
@@ -86,6 +86,13 @@ export const CodePreviewPanel = ({
         },
         enabled: fileMatch !== undefined,
     });
+
+    if (isLoading) {
+        return <div className="flex flex-col items-center justify-center h-full">
+            <SymbolIcon className="h-6 w-6 animate-spin" />
+            <p className="font-semibold text-center">Loading...</p>
+        </div>
+    }
 
     return (
         <CodePreview

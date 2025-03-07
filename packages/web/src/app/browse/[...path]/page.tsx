@@ -1,4 +1,4 @@
-import { FileHeader } from "@/app/components/fireHeader";
+import { FileHeader } from "@/app/components/fileHeader";
 import { TopBar } from "@/app/components/topBar";
 import { Separator } from '@/components/ui/separator';
 import { getFileSource, listRepositories } from '@/lib/server/searchService';
