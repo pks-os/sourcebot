@@ -122,3 +122,21 @@ export const base64Decode = (base64: string): string => {
 export const isDefined = <T>(arg: T | null | undefined): arg is T extends null | undefined ? never : T => {
     return arg !== null && arg !== undefined;
 }
+
+export const measure = async <T>(cb: () => Promise<T>, measureName: string) => {
+    const startMark = `${measureName}.start`;
+    const endMark = `${measureName}.end`;
+
+    performance.mark(startMark);
+    const data = await cb();
+    performance.mark(endMark);
+
+    const measure = performance.measure(measureName, startMark, endMark);
+    const durationMs = measure.duration;
+    console.debug(`[${measureName}] took ${durationMs}ms`);
+
+    return {
+        data,
+        durationMs
+    }
+}

@@ -170,12 +170,12 @@ export default function SearchPage() {
     }, [fileMatches]);
 
     const onLoadMoreResults = useCallback(() => {
-        const url = createPathWithQueryParams(`/${domain}/search`,
+        const url = createPathWithQueryParams(`/search`,
             [SearchQueryParams.query, searchQuery],
             [SearchQueryParams.maxMatchDisplayCount, `${maxMatchDisplayCount * 2}`],
         )
         router.push(url);
-    }, [maxMatchDisplayCount, router, searchQuery, domain]);
+    }, [maxMatchDisplayCount, router, searchQuery]);
 
     return (
         <div className="flex flex-col h-screen overflow-clip">
