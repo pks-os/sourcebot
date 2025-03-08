@@ -65,7 +65,7 @@ export class ConnectionManager implements IConnectionManager {
                 config: connectionConfig,
             });
             this.logger.info(`Added job to queue for connection ${connection.id}`);
-        }).catch((err: unknown) => {
+        }, { timeout: 1000 * 60 * 10 }).catch((err: unknown) => {
             this.logger.error(`Failed to add job to queue for connection ${connection.id}: ${err}`);
         });
     }
@@ -220,7 +220,7 @@ export class ConnectionManager implements IConnectionManager {
             }
             const totalUpsertDuration = performance.now() - totalUpsertStart;
             this.logger.info(`Upserted ${repoData.length} repos in ${totalUpsertDuration}ms`);
-        });
+        }, { timeout: 1000 * 60 * 10 });
 
         return {
             repoCount: repoData.length,
@@ -259,10 +259,15 @@ export class ConnectionManager implements IConnectionManager {
             connectionId: connectionId,
             repoCount: result.repoCount,
         });
-    }
+    }   
 
     private async onSyncJobFailed(job: Job | undefined, err: unknown) {
-        this.logger.info(`Connection sync job failed with error: ${err}`);
+        this.logger.error(`Connection sync job failed with error: ${err}`);
+        if (err instanceof BackendException && 'message' in err.metadata) {
+            this.logger.error(`Error message: ${err.metadata.message}`);
+        }
+
+        
         if (job) {
             const { connectionId } = job.data;
 

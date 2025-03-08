@@ -117,9 +117,7 @@ export class RepoManager implements IRepoManager {
 
                 this.logger.info(`Added ${orgRepos.length} jobs to indexQueue for org ${orgId} with priority ${priority}`);
             }
-
-
-        }).catch((err: unknown) => {
+        }, { timeout: 1000 * 60 * 10 }).catch((err: unknown) => {
             this.logger.error(`Failed to add jobs to indexQueue for repos ${repos.map(repo => repo.id).join(', ')}: ${err}`);
         });
     }
@@ -369,7 +367,7 @@ export class RepoManager implements IRepoManager {
             })));
 
             this.logger.info(`Added ${repos.length} jobs to gcQueue`);
-        });
+        }, { timeout: 1000 * 60 * 10 });
     }
 
     private async fetchAndScheduleRepoGarbageCollection() {
@@ -512,7 +510,7 @@ export class RepoManager implements IRepoManager {
                 where: { id: { in: repos.map(repo => repo.id) } },
                 data: { repoIndexingStatus: RepoIndexingStatus.FAILED }
             });
-        });
+        }, { timeout: 1000 * 60 * 10 });
     }
     
     public async dispose() {

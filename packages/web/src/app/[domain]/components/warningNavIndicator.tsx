@@ -51,7 +51,7 @@ export const WarningNavIndicator = () => {
                                                 rounded-md text-sm text-yellow-700 dark:text-yellow-300 
                                                 border border-yellow-200/50 dark:border-yellow-800/50
                                                 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors">
-                                        <span className="font-medium">{connection.name}</span>
+                                        <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300 truncate">{connection.name}</span>
                                     </div>
                                 </Link>
                             ))}

@@ -103,7 +103,7 @@ export const ErrorNavIndicator = () => {
                                                             border border-red-200/50 dark:border-red-800/50
                                                             hover:bg-red-100 dark:hover:bg-red-900/30 
                                                             transition-colors">
-                                                <span className="text-sm font-medium text-red-700 dark:text-red-300">
+                                                <span className="text-sm font-medium text-red-700 dark:text-red-300 truncate">
                                                     {repo.repoName}
                                                 </span>
                                             </div>

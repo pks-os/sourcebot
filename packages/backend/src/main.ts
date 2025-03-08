@@ -27,6 +27,9 @@ export const main = async (db: PrismaClient, context: AppContext) => {
         settings.indexConcurrencyMultiple = parseInt(INDEX_CONCURRENCY_MULTIPLE);
     }
 
+    // @nocheckin
+    settings.reindexRepoPollingIntervalMs = 1000 * 60 * 60 * 24; // 24 hours
+
     const promClient = new PromClient();
 
     const connectionManager = new ConnectionManager(db, settings, redis);

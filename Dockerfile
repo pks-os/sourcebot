@@ -149,13 +149,13 @@ RUN curl -sL https://sentry.io/get-cli/ | sh
 
 # Install grafana alloy. libc6-compat is required because alloy dynamically links against glibc which doesn't exist in alpine by default
 # @nochekin: figure out how to handle this for self hosted case (especially the config)
-RUN apk add --no-cache libc6-compat 
-RUN wget https://github.com/grafana/alloy/releases/download/v1.7.0/alloy-linux-amd64.zip \
-    && unzip alloy-linux-amd64.zip \
-    && mv alloy-linux-amd64 /usr/local/bin/alloy \
-    && chmod +x /usr/local/bin/alloy \
-    && rm alloy-linux-amd64.zip
-COPY grafana.alloy .
+#RUN apk add --no-cache libc6-compat 
+#RUN wget https://github.com/grafana/alloy/releases/download/v1.7.0/alloy-linux-amd64.zip \
+#    && unzip alloy-linux-amd64.zip \
+#    && mv alloy-linux-amd64 /usr/local/bin/alloy \
+#    && chmod +x /usr/local/bin/alloy \
+#    && rm alloy-linux-amd64.zip
+#COPY grafana.alloy .
 
 # Configure the database
 RUN mkdir -p /run/postgresql && \
