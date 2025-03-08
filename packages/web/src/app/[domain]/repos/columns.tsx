@@ -99,7 +99,7 @@ export const columns = (domain: string, displayAdminInfo: boolean): ColumnDef<Re
         header: () => (
             <div className="flex items-center w-[400px]">
                 <span>Repository</span>
-                <AddRepoButton />
+                <AddRepoButton displayAdminInfo={displayAdminInfo} />
             </div>
         ),
         cell: ({ row }) => {
