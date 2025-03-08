@@ -315,42 +315,51 @@ const getReposForOrgs = async (orgs: string[], octokit: Octokit, signal: AbortSi
 }
 
 const getRepos = async (repoList: string[], octokit: Octokit, signal: AbortSignal) => {
-    const results = await Promise.allSettled(repoList.map(async (repo) => {
-        try {
-            const [owner, repoName] = repo.split('/');
-            logger.info(`Fetching repository info for ${repo}...`);
+    const batchSize = 10;
+    const results: PromiseSettledResult<{type: 'valid', data: OctokitRepository[]} | {type: 'notFound', value: string}>[] = [];
 
-            const { durationMs, data: result } = await measure(async () => {
-                const fetchFn = () => octokit.repos.get({
-                    owner,
-                    repo: repoName,
-                    request: {
-                        signal
-                    }
+    // Process repos in batches of 10
+    for (let i = 0; i < repoList.length; i += batchSize) {
+        const batch = repoList.slice(i, i + batchSize);
+        const batchResults = await Promise.allSettled(batch.map(async (repo) => {
+            try {
+                const [owner, repoName] = repo.split('/');
+                logger.info(`Fetching repository info for ${repo}...`);
+
+                const { durationMs, data: result } = await measure(async () => {
+                    const fetchFn = () => octokit.repos.get({
+                        owner,
+                        repo: repoName,
+                        request: {
+                            signal
+                        }
+                    });
+
+                    return fetchWithRetry(fetchFn, repo, logger);
                 });
 
-                return fetchWithRetry(fetchFn, repo, logger);
-            });
-
-            logger.info(`Found info for repository ${repo} in ${durationMs}ms`);
-            return {
-                type: 'valid' as const,
-                data: [result.data]
-            };
-
-        } catch (error) {
-            Sentry.captureException(error);
-
-            if (isHttpError(error, 404)) {
-                logger.error(`Repository ${repo} not found or no access`);
+                logger.info(`Found info for repository ${repo} in ${durationMs}ms`);
                 return {
-                    type: 'notFound' as const,
-                    value: repo
+                    type: 'valid' as const,
+                    data: [result.data]
                 };
+
+            } catch (error) {
+                Sentry.captureException(error);
+
+                if (isHttpError(error, 404)) {
+                    logger.error(`Repository ${repo} not found or no access`);
+                    return {
+                        type: 'notFound' as const,
+                        value: repo
+                    };
+                }
+                throw error;
             }
-            throw error;
-        }
-    }));
+        }));
+
+        results.push(...batchResults);
+    }
 
     throwIfAnyFailed(results);
     const { validItems: validRepos, notFoundItems: notFoundRepos } = processPromiseResults<OctokitRepository>(results);
