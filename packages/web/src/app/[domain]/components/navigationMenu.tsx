@@ -6,12 +6,14 @@ import { SettingsDropdown } from "./settingsDropdown";
 import { GitHubLogoIcon, DiscordLogoIcon } from "@radix-ui/react-icons";
 import { redirect } from "next/navigation";
 import { OrgSelector } from "./orgSelector";
-import { getSubscriptionData } from "@/actions";
+import { getOrgPublicInfo, getSubscriptionData } from "@/actions";
 import { ErrorNavIndicator } from "./errorNavIndicator";
 import { WarningNavIndicator } from "./warningNavIndicator";
 import { ProgressNavIndicator } from "./progressNavIndicator";
 import { SourcebotLogo } from "@/app/components/sourcebotLogo";
 import { TrialNavIndicator } from "./trialNavIndicator";
+import { isServiceError } from "@/lib/utils";
+import { OrgRole } from "@sourcebot/db";
 
 const SOURCEBOT_DISCORD_URL = "https://discord.gg/6Fhp27x7Pb";
 const SOURCEBOT_GITHUB_URL = "https://github.com/sourcebot-dev/sourcebot";
@@ -24,6 +26,16 @@ export const NavigationMenu = async ({
     domain,
 }: NavigationMenuProps) => {
     const subscription = await getSubscriptionData(domain);
+
+    const orgPublicInfo = await getOrgPublicInfo(domain);
+    
+    if (isServiceError(orgPublicInfo)) {
+        return null;
+    }
+
+    const { isPublic, userRole } = orgPublicInfo;
+    const displayAdminLinks = !isPublic || userRole === OrgRole.OWNER;
+
 
     return (
         <div className="flex flex-col w-screen h-fit">
@@ -60,20 +72,24 @@ export const NavigationMenu = async ({
                                     </NavigationMenuLink>
                                 </Link>
                             </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <Link href={`/${domain}/connections`} legacyBehavior passHref>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Connections
-                                    </NavigationMenuLink>
-                                </Link>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <Link href={`/${domain}/settings`} legacyBehavior passHref>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Settings
-                                    </NavigationMenuLink>
-                                </Link>
-                            </NavigationMenuItem>
+                            {displayAdminLinks && (
+                                <>
+                                    <NavigationMenuItem>
+                                        <Link href={`/${domain}/connections`} legacyBehavior passHref>
+                                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                                Connections
+                                            </NavigationMenuLink>
+                                        </Link>
+                                    </NavigationMenuItem>
+                                    <NavigationMenuItem>
+                                        <Link href={`/${domain}/settings`} legacyBehavior passHref>
+                                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                                Settings
+                                            </NavigationMenuLink>
+                                        </Link>
+                                    </NavigationMenuItem>
+                                </>
+                            )}
                         </NavigationMenuList>
                     </NavigationMenuBase>
                 </div>

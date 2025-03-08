@@ -40,7 +40,7 @@ export const withAuth = async <T>(fn: (session: Session) => Promise<T>) => {
     return fn(session);
 }
 
-export const withOrgMembership = async <T>(session: Session, domain: string, fn: (params: { orgId: number, userRole: OrgRole }) => Promise<T>, minRequiredRole: OrgRole = OrgRole.MEMBER) => {
+export const withOptionalAuth = async <T>(domain: string, fn: (session: Session | null) => Promise<T>) => {
     const org = await prisma.org.findUnique({
         where: {
             domain,
@@ -51,11 +51,24 @@ export const withOrgMembership = async <T>(session: Session, domain: string, fn:
         return notFound();
     }
 
+    const session = await auth();
+
+    // If the org is public then we can return the session (since we don't need to check for membership). This
+    // session may be null, but that's fine. It's the responsibility of the callback to handle this.
+    if (org.isPublic) {
+        return fn(session);
+    }
+
+    // If the org is not public then we must be authenticated and a member of the org
+    if (!session) {
+        return notFound();
+    }
+
     const membership = await prisma.userToOrg.findUnique({
         where: {
             orgId_userId: {
-                userId: session.user.id,
                 orgId: org.id,
+                userId: session.user.id,
             }
         },
     });
@@ -64,28 +77,83 @@ export const withOrgMembership = async <T>(session: Session, domain: string, fn:
         return notFound();
     }
 
-    const getAuthorizationPrecendence = (role: OrgRole): number => {
-        switch (role) {
-            case OrgRole.MEMBER:
-                return 0;
-            case OrgRole.OWNER:
-                return 1;
-        }
-    }
+    return fn(session);
+}
 
-
-    if (getAuthorizationPrecendence(membership.role) < getAuthorizationPrecendence(minRequiredRole)) {
-        return {
-            statusCode: StatusCodes.FORBIDDEN,
-            errorCode: ErrorCode.INSUFFICIENT_PERMISSIONS,
-            message: "You do not have sufficient permissions to perform this action.",
-        } satisfies ServiceError;
-    }
-
-    return fn({
-        orgId: org.id,
-        userRole: membership.role,
+export const withOrgMembership = async <T>(session: Session | null, domain: string, fn: (params: { orgId: number, userRole: OrgRole }) => Promise<T>, minRequiredRole: OrgRole = OrgRole.MEMBER) => {
+    const org = await prisma.org.findUnique({
+        where: {
+            domain,
+        },
     });
+
+    if (!org) {
+        return notFound();
+    }
+
+    if (org.isPublic) {
+        let role: OrgRole = OrgRole.MEMBER;
+        if (session) {
+            const membership = await prisma.userToOrg.findUnique({
+                where: {
+                    orgId_userId: {
+                        userId: session.user.id,
+                        orgId: org.id,
+                    }
+                },
+            });
+
+            if (membership) {
+                role = membership.role;
+            }
+        }
+
+        return fn({
+            orgId: org.id,
+            userRole: role,
+        });
+    } else {
+        // If the org isn't public then we must be authenticated
+        if (!session) {
+            return notFound();
+        }
+
+        const membership = await prisma.userToOrg.findUnique({
+            where: {
+                orgId_userId: {
+                    userId: session.user.id,
+                    orgId: org.id,
+                }
+            },
+        });
+
+        if (!membership) {
+            return notFound();
+        }
+
+        const getAuthorizationPrecendence = (role: OrgRole): number => {
+            switch (role) {
+                case OrgRole.MEMBER:
+                    return 0;
+                case OrgRole.OWNER:
+                    return 1;
+            }
+        }
+
+
+        if (getAuthorizationPrecendence(membership.role) < getAuthorizationPrecendence(minRequiredRole)) {
+            return {
+                statusCode: StatusCodes.FORBIDDEN,
+                errorCode: ErrorCode.INSUFFICIENT_PERMISSIONS,
+                message: "You do not have sufficient permissions to perform this action.",
+            } satisfies ServiceError;
+        }
+
+        return fn({
+            orgId: org.id,
+            userRole: membership.role,
+        });
+    }
 }
 
 export const isAuthed = async () => {
@@ -350,7 +418,7 @@ export const getConnectionInfo = async (connectionId: number, domain: string) =>
     )
 
 export const getRepos = async (domain: string, filter: { status?: RepoIndexingStatus[], connectionId?: number } = {}): Promise<RepositoryQuery[] | ServiceError> =>
-    withAuth((session) =>
+    withOptionalAuth(domain, async (session) =>
         withOrgMembership(session, domain, async ({ orgId }) => {
             const repos = await prisma.repo.findMany({
                 where: {
@@ -1289,6 +1357,25 @@ export const dismissMobileUnsupportedSplashScreen = async () => {
     await cookies().set(MOBILE_UNSUPPORTED_SPLASH_SCREEN_DISMISSED_COOKIE_NAME, 'true');
 }
 
+export const getOrgPublicInfo = async (domain: string) =>
+    withOptionalAuth(domain, async (session) =>
+        withOrgMembership(session, domain, async ({ orgId, userRole }) => {
+            const org = await prisma.org.findUnique({
+                where: {
+                    id: orgId,
+                },
+            });
+
+            if (!org) {
+                return notFound();
+            }
+
+            return {
+                isPublic: org.isPublic ?? false,
+                userRole,
+            };
+        })
+    );
 
 ////// Helpers ///////
 

@@ -2,17 +2,30 @@ import { Metadata } from "next"
 import { SidebarNav } from "./components/sidebar-nav"
 import { NavigationMenu } from "../components/navigationMenu"
 import { Header } from "./components/header";
+import { PageNotFound } from "../components/pageNotFound";
+import { getOrgFromDomain } from "@/data/org";
+import { auth } from "@/auth";
 export const metadata: Metadata = {
     title: "Settings",
 }
 
-export default function SettingsLayout({
+export default async function SettingsLayout({
     children,
     params: { domain },
 }: Readonly<{
     children: React.ReactNode;
     params: { domain: string };
 }>) {
+    const org = await getOrgFromDomain(domain);
+
+    if (!org) {
+        return <PageNotFound />
+    }
+
+    const session = await auth();
+    if (!session) {
+        return <PageNotFound />
+    }
 
     const sidebarNavItems = [
         {

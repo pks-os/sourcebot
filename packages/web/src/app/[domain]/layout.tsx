@@ -27,24 +27,25 @@ export default async function Layout({
         return <PageNotFound />
     }
 
-
-    const session = await auth();
-    if (!session) {
-        return <PageNotFound />
-    }
-
-
-    const membership = await prisma.userToOrg.findUnique({
-        where: {
-            orgId_userId: {
-                orgId: org.id,
-                userId: session.user.id
-            }
+    if (!org.isPublic) {
+        const session = await auth();
+        if (!session) {
+            return <PageNotFound />
         }
-    });
 
-    if (!membership) {
-        return <PageNotFound />
+
+        const membership = await prisma.userToOrg.findUnique({
+            where: {
+                orgId_userId: {
+                    orgId: org.id,
+                    userId: session.user.id
+                }
+            }
+        });
+
+        if (!membership) {
+            return <PageNotFound />
+        }
     }
 
     if (!org.isOnboarded) {
@@ -55,6 +56,7 @@ export default async function Layout({
         )
     }
 
+    if (!org.isPublic) {
     const subscription = await fetchSubscription(domain);
     if (
         subscription &&
@@ -64,10 +66,11 @@ export default async function Layout({
         )
     ) {
         return (
-            <UpgradeGuard>
-                {children}
-            </UpgradeGuard>
-        )
+                <UpgradeGuard>
+                    {children}
+                </UpgradeGuard>
+            )
+        }
     }
 
     const headersList = await headers();

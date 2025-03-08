@@ -125,6 +125,7 @@ model Org {
   repos       Repo[]
   secrets     Secret[]
   isOnboarded Boolean      @default(false)
+  isPublic    Boolean?      @default(false)
   imageUrl    String?
 
   stripeCustomerId         String?

@@ -93,7 +93,7 @@ const StatusIndicator = ({ status }: { status: RepoIndexingStatus }) => {
     )
 }
 
-export const columns = (domain: string): ColumnDef<RepositoryColumnInfo>[] => [
+export const columns = (domain: string, displayAdminInfo: boolean): ColumnDef<RepositoryColumnInfo>[] => [
     {
         accessorKey: "name",
         header: () => (
@@ -147,7 +147,7 @@ export const columns = (domain: string): ColumnDef<RepositoryColumnInfo>[] => [
         cell: ({ row }) => {
             const connections = row.original.connections
             
-            if (!connections || connections.length === 0) {
+            if (!displayAdminInfo || !connections || connections.length === 0) {
                 return <div className="text-muted-foreground text-sm">—</div>
             }
 

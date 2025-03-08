@@ -4,7 +4,7 @@ import { search } from "@/lib/server/searchService";
 import { searchRequestSchema } from "@/lib/schemas";
 import { isServiceError } from "@/lib/utils";
 import { NextRequest } from "next/server";
-import { withAuth, withOrgMembership } from "@/actions";
+import { withOptionalAuth, withOrgMembership } from "@/actions";
 import { schemaValidationError, serviceErrorResponse } from "@/lib/serviceError";
 import { SearchRequest } from "@/lib/types";
 
@@ -26,7 +26,7 @@ export const POST = async (request: NextRequest) => {
 }
 
 const postSearch = (request: SearchRequest, domain: string) =>
-    withAuth((session) =>
+    withOptionalAuth(domain, (session) =>
         withOrgMembership(session, domain, async ({ orgId }) => {
             const response = await search(request, orgId);
             return response;

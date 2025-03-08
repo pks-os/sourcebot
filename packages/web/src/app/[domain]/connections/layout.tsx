@@ -1,12 +1,40 @@
+import { prisma } from "@/prisma";
 import { NavigationMenu } from "../components/navigationMenu";
+import { PageNotFound } from "../components/pageNotFound";
+import { auth } from "@/auth";
+import { getOrgFromDomain } from "@/data/org";
 
-export default function Layout({
+export default async function Layout({
     children,
     params: { domain },
 }: Readonly<{
     children: React.ReactNode;
     params: { domain: string };
 }>) {
+    const org = await getOrgFromDomain(domain);
+
+    if (!org) {
+        return <PageNotFound />
+    }
+
+    const session = await auth();
+    if (!session) {
+        return <PageNotFound />
+    }
+
+
+    const membership = await prisma.userToOrg.findUnique({
+        where: {
+            orgId_userId: {
+                orgId: org.id,
+                userId: session.user.id
+            }
+        }
+    });
+
+    if (!membership) {
+        return <PageNotFound />
+    }
 
     return (
         <div className="min-h-screen flex flex-col">

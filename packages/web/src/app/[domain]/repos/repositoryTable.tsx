@@ -11,7 +11,11 @@ import { RepoIndexingStatus } from "@sourcebot/db";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const RepositoryTable = () => {
+interface RepositoryTableProps {
+    displayAdminInfo: boolean;
+}
+
+export const RepositoryTable = ({ displayAdminInfo }: RepositoryTableProps) => {
     const domain = useDomain();
 
     const { data: repos, isLoading: reposLoading, error: reposError } = useQuery({
@@ -48,7 +52,7 @@ export const RepositoryTable = () => {
 
     const tableColumns = useMemo(() => {
         if (reposLoading) {
-            return columns(domain).map((column) => {
+            return columns(domain, displayAdminInfo).map((column) => {
                 if ('accessorKey' in column && column.accessorKey === "name") {
                   return {
                     ...column,
@@ -72,8 +76,8 @@ export const RepositoryTable = () => {
               })
         }
 
-        return columns(domain);
-    }, [reposLoading, domain]);
+        return columns(domain, displayAdminInfo);
+    }, [reposLoading, domain, displayAdminInfo]);
 
 
     if (reposError) {
