@@ -1,5 +1,5 @@
 import escapeStringRegexp from "escape-string-regexp";
-import { SHARD_MAX_MATCH_COUNT, TOTAL_MAX_MATCH_COUNT } from "../environment";
+import { SHARD_MAX_MATCH_COUNT, TOTAL_MAX_MATCH_COUNT, ZOEKT_MAX_WALL_TIME_MS } from "../environment";
 import { listRepositoriesResponseSchema, zoektSearchResponseSchema } from "../schemas";
 import { FileSourceRequest, FileSourceResponse, ListRepositoriesResponse, SearchRequest, SearchResponse } from "../types";
 import { fileNotFound, invalidZoektResponse, ServiceError, unexpectedError } from "../serviceError";
@@ -61,6 +61,7 @@ export const search = async ({ query, maxMatchDisplayCount, whole}: SearchReques
             Whole: !!whole,
             ShardMaxMatchCount: SHARD_MAX_MATCH_COUNT,
             TotalMaxMatchCount: TOTAL_MAX_MATCH_COUNT,
+            MaxWallTime: ZOEKT_MAX_WALL_TIME_MS * 1000, // zoekt expects a duration in nanoseconds
         }
     });
 

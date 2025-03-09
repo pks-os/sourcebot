@@ -28,7 +28,7 @@ export const main = async (db: PrismaClient, context: AppContext) => {
     }
 
     // @nocheckin
-    settings.reindexRepoPollingIntervalMs = 1000 * 60 * 60 * 24; // 24 hours
+    settings.reindexIntervalMs = 1000 * 60 * 60 * 24; // 24 hours
 
     const promClient = new PromClient();
 
