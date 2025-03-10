@@ -27,6 +27,7 @@ import { createTransport } from "nodemailer";
 import { orgDomainSchema, orgNameSchema, repositoryQuerySchema } from "./lib/schemas";
 import { RepositoryQuery } from "./lib/types";
 import { MOBILE_UNSUPPORTED_SPLASH_SCREEN_DISMISSED_COOKIE_NAME } from "./lib/constants";
+import { submitFeedbackToNotion } from "./lib/notion";
 
 const ajv = new Ajv({
     validateFormats: false,
@@ -1502,4 +1503,8 @@ export const encryptValue = async (value: string) => {
 
 export const decryptValue = async (iv: string, encryptedValue: string) => {
     return decrypt(iv, encryptedValue);
+}
+
+export const submitFeedback = async (feedback: string) => {
+    await submitFeedbackToNotion(feedback);
 }

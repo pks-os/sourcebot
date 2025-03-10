@@ -7,7 +7,7 @@ import { InviteTeam } from "./components/inviteTeam";
 import { CompleteOnboarding } from "./components/completeOnboarding";
 import { Checkout } from "./components/checkout";
 import { LogoutEscapeHatch } from "@/app/components/logoutEscapeHatch";
-import SecurityCard from "@/app/components/securityCard";
+import { PUBLIC_SEARCH_DEMO } from "@/lib/environment";
 
 interface OnboardProps {
     params: {
@@ -20,8 +20,14 @@ interface OnboardProps {
 }
 
 export default async function Onboard({ params, searchParams }: OnboardProps) {
+    // @nocheckin
+    // We don't let users onboard if we're in a public search demo
+    if (PUBLIC_SEARCH_DEMO) {
+        redirect("/search");
+    }
+
     const org = await getOrgFromDomain(params.domain);
-    
+
     if (!org) {
         notFound();
     }

@@ -5,8 +5,15 @@ import { OnboardHeader } from "./components/onboardHeader";
 import { OnboardingSteps } from "@/lib/constants";
 import { LogoutEscapeHatch } from "../components/logoutEscapeHatch";
 import { SOURCEBOT_ROOT_DOMAIN } from "@/lib/environment";
+import { PUBLIC_SEARCH_DEMO } from "@/lib/environment";
 
 export default async function Onboarding() {
+    // @nocheckin
+    // We don't let users onboard if we're in a public search demo
+    if (PUBLIC_SEARCH_DEMO) {
+        redirect("/search");
+    }
+
     const session = await auth();
     if (!session) {
         redirect("/login");

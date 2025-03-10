@@ -9,6 +9,7 @@ import { Footer } from "@/app/components/footer";
 import { SourcebotLogo } from "../components/sourcebotLogo";
 import { RepositorySnapshot } from "./components/repositorySnapshot";
 import { KeyboardShortcutHint } from "./components/keyboardShortcutHint";
+import { UnityLogo } from "../components/unityLogo";
 
 export default async function Home({ params: { domain } }: { params: { domain: string } }) {
     const org = await getOrgFromDomain(domain);
@@ -23,10 +24,19 @@ export default async function Home({ params: { domain } }: { params: { domain: s
             />
             <UpgradeToast />
             <div className="flex flex-col justify-center items-center mt-8 mb-8 md:mt-18 w-full px-5">
-                <div className="max-h-44 w-auto">
-                    <SourcebotLogo
-                        className="h-18 md:h-40 w-auto"
+                <div className="mb-10 flex flex-col items-center">
+                    <UnityLogo
+                        className="h-32 w-auto mb-2"
                     />
+                    <div className="flex items-center mt-2">
+                        <h1 className="text-white text-3xl font-bold">Code Search</h1>
+                        <span className="text-[#999999] text-sm ml-3 mt-1 flex items-center">
+                            powered by{" "}
+                            <Link href="https://sourcebot.dev" className="ml-1">
+                                <SourcebotLogo size="large" className="h-8 w-auto inline-block" />
+                            </Link>
+                        </span>
+                    </div>
                 </div>
                 <SearchBar
                     autoFocus={true}
@@ -37,56 +47,20 @@ export default async function Home({ params: { domain } }: { params: { domain: s
                 </div>
                 <div className="flex flex-col items-center w-fit gap-6">
                     <Separator className="mt-5" />
-                    <span className="font-semibold">How to search</span>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <HowToSection
-                            title="Search in files or paths"
-                        >
-                            <QueryExample>
-                                <Query query="test todo">test todo</Query> <QueryExplanation>(both test and todo)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="test or todo">test <Highlight>or</Highlight> todo</Query> <QueryExplanation>(either test or todo)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query={`"exit boot"`}>{`"exit boot"`}</Query> <QueryExplanation>(exact match)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="TODO case:yes">TODO <Highlight>case:</Highlight>yes</Query> <QueryExplanation>(case sensitive)</QueryExplanation>
-                            </QueryExample>
-                        </HowToSection>
-                        <HowToSection
-                            title="Filter results"
-                        >
-                            <QueryExample>
-                                <Query query="file:README setup"><Highlight>file:</Highlight>README setup</Query> <QueryExplanation>(by filename)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="repo:torvalds/linux test"><Highlight>repo:</Highlight>torvalds/linux test</Query> <QueryExplanation>(by repo)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="lang:typescript"><Highlight>lang:</Highlight>typescript</Query> <QueryExplanation>(by language)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="rev:HEAD"><Highlight>rev:</Highlight>HEAD</Query> <QueryExplanation>(by branch or tag)</QueryExplanation>
-                            </QueryExample>
-                        </HowToSection>
-                        <HowToSection
-                            title="Advanced"
-                        >
-                            <QueryExample>
-                                <Query query="file:\.py$"><Highlight>file:</Highlight>{`\\.py$`}</Query> <QueryExplanation>{`(files that end in ".py")`}</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="sym:main"><Highlight>sym:</Highlight>main</Query> <QueryExplanation>{`(symbols named "main")`}</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="todo -lang:c">todo <Highlight>-lang:c</Highlight></Query> <QueryExplanation>(negate filter)</QueryExplanation>
-                            </QueryExample>
-                            <QueryExample>
-                                <Query query="content:README"><Highlight>content:</Highlight>README</Query> <QueryExplanation>(search content only)</QueryExplanation>
-                            </QueryExample>
-                        </HowToSection>
+                    <span className="font-semibold">Search examples</span>
+                    <div className="grid grid-cols-1 gap-5">
+                        <QueryExample>
+                            <Query query="Properties\s*\{ file:\.shader$">{`Properties\\s*\\{`} <Highlight>file:</Highlight>\.shader$</Query> <QueryExplanation>(shader property blocks - filter by file)</QueryExplanation>
+                        </QueryExample>
+                        <QueryExample>
+                            <Query query="Debug\.Log\(.*\) lang:csharp">Debug\.Log\(.*\) <Highlight>lang:</Highlight>csharp</Query> <QueryExplanation>(find all debug logs - filter by language)</QueryExplanation>
+                        </QueryExample>
+                        <QueryExample>
+                            <Query query={`"void Update()"`}>{`"void Update()"`}</Query> <QueryExplanation>(exact match)</QueryExplanation>
+                        </QueryExample>
+                        <QueryExample>
+                            <Query query="using\sUnityEngine repo:msukkari/A-Distant-Path">using UnityEngine <Highlight>repo:</Highlight>msukkari/A-Distant-Path</Query> <QueryExplanation>(find all UnityEngine imports in a specific repo)</QueryExplanation>
+                        </QueryExample>
                     </div>
                     <div className="text-sm">
                         <span className="dark:text-gray-300">Reference guide: </span><KeyboardShortcutHint shortcut="⌘" /> <KeyboardShortcutHint shortcut="/" />
@@ -135,7 +109,7 @@ const QueryExplanation = ({ children }: { children: React.ReactNode }) => {
 const Query = ({ query, children }: { query: string, children: React.ReactNode }) => {
     return (
         <Link
-            href={`/search?query=${query}`}
+            href={`/search/search?query=${query}`} // @nocheckin: This is a temporary fix to ensure the query is encoded correctly.
             className="cursor-pointer hover:underline"
         >
             {children}

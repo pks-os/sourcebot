@@ -3,6 +3,7 @@ import { LoginForm } from "./components/loginForm";
 import { redirect } from "next/navigation";
 import { getProviders } from "@/auth";
 import { Footer } from "@/app/components/footer";
+import { PUBLIC_SEARCH_DEMO } from "@/lib/environment";
 
 interface LoginProps {
     searchParams: {
@@ -12,6 +13,12 @@ interface LoginProps {
 }
 
 export default async function Login({ searchParams }: LoginProps) {
+    // @nocheckin
+    // We don't let users login if we're in a public search demo
+    if (PUBLIC_SEARCH_DEMO) {
+        return redirect("/search");
+    }
+
     const session = await auth();
     if (session) {
         return redirect("/");

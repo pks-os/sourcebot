@@ -23,6 +23,14 @@ export default function RootLayout({
             // @see : https://github.com/pacocoursey/next-themes?tab=readme-ov-file#with-app
             suppressHydrationWarning
         >
+            <head>
+                <title>Unity Code Search - Sourcebot</title>
+                <meta name="og:title" content="Unity Code Search - Sourcebot" />
+                <meta name="og:description" content="Search 1000+ Unity projects" />
+                <meta name="og:image" content="https://unity.sourcebot.dev/unity_og_image.png" />
+                <meta name="og:url" content="https://unity.sourcebot.dev" />
+                <meta name="og:type" content="website" />
+            </head>
             <body>
                 <Toaster />
                 <SessionProvider>

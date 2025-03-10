@@ -26,3 +26,7 @@ export const SMTP_CONNECTION_URL = getEnv(process.env.SMTP_CONNECTION_URL);
 export const EMAIL_FROM = getEnv(process.env.EMAIL_FROM);
 
 export const SOURCEBOT_ROOT_DOMAIN = getEnv(process.env.SOURCEBOT_ROOT_DOMAIN, "localhost:3000")!;
+export const PUBLIC_SEARCH_DEMO = getEnvBoolean(process.env.PUBLIC_SEARCH_DEMO, false);
+
+export const NOTION_FEEDBACK_INTEGRATION_ID = getEnv(process.env.NOTION_FEEDBACK_INTEGRATION_ID);
+export const NOTION_FEEDBACK_INTEGRATION_TOKEN = getEnv(process.env.NOTION_FEEDBACK_INTEGRATION_TOKEN);

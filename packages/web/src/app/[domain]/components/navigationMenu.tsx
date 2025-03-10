@@ -14,6 +14,7 @@ import { SourcebotLogo } from "@/app/components/sourcebotLogo";
 import { TrialNavIndicator } from "./trialNavIndicator";
 import { isServiceError } from "@/lib/utils";
 import { OrgRole } from "@sourcebot/db";
+import { FeedbackForm } from "./navFeedbackForm";
 
 const SOURCEBOT_DISCORD_URL = "https://discord.gg/6Fhp27x7Pb";
 const SOURCEBOT_GITHUB_URL = "https://github.com/sourcebot-dev/sourcebot";
@@ -71,6 +72,9 @@ export const NavigationMenu = async ({
                                         Repositories
                                     </NavigationMenuLink>
                                 </Link>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <FeedbackForm />
                             </NavigationMenuItem>
                             {displayAdminLinks && (
                                 <>
