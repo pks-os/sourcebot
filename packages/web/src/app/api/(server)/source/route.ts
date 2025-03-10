@@ -5,7 +5,7 @@ import { getFileSource } from "@/lib/server/searchService";
 import { schemaValidationError, serviceErrorResponse } from "@/lib/serviceError";
 import { isServiceError } from "@/lib/utils";
 import { NextRequest } from "next/server";
-import { withAuth, withOrgMembership } from "@/actions";
+import { withAuth, withOptionalAuth, withOrgMembership } from "@/actions";
 import { FileSourceRequest } from "@/lib/types";
 
 export const POST = async (request: NextRequest) => {
@@ -28,7 +28,7 @@ export const POST = async (request: NextRequest) => {
 
 
 const postSource = (request: FileSourceRequest, domain: string) =>
-    withAuth(async (session) =>
+    withOptionalAuth(domain, (session) =>
         withOrgMembership(session, domain, async ({ orgId }) => {
             const response = await getFileSource(request, orgId);
             return response;

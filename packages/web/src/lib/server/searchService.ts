@@ -61,7 +61,7 @@ export const search = async ({ query, maxMatchDisplayCount, whole}: SearchReques
             Whole: !!whole,
             ShardMaxMatchCount: SHARD_MAX_MATCH_COUNT,
             TotalMaxMatchCount: TOTAL_MAX_MATCH_COUNT,
-            MaxWallTime: ZOEKT_MAX_WALL_TIME_MS * 1000, // zoekt expects a duration in nanoseconds
+            MaxWallTime: ZOEKT_MAX_WALL_TIME_MS * 1000 * 1000, // zoekt expects a duration in nanoseconds
         }
     });
 
@@ -87,6 +87,29 @@ export const search = async ({ query, maxMatchDisplayCount, whole}: SearchReques
         console.error(`Failed to parse zoekt response. Error: ${parsedSearchResponse.error}`);
         return unexpectedError(`Something went wrong while parsing the response from zoekt`);
     }
+
+    console.log('Search Stats:', {
+        contentBytesLoaded: parsedSearchResponse.data.Result.ContentBytesLoaded,
+        indexBytesLoaded: parsedSearchResponse.data.Result.IndexBytesLoaded,
+        crashes: parsedSearchResponse.data.Result.Crashes,
+        duration: parsedSearchResponse.data.Result.Duration,
+        fileCount: parsedSearchResponse.data.Result.FileCount,
+        shardFilesConsidered: parsedSearchResponse.data.Result.ShardFilesConsidered,
+        filesConsidered: parsedSearchResponse.data.Result.FilesConsidered,
+        filesLoaded: parsedSearchResponse.data.Result.FilesLoaded,
+        filesSkipped: parsedSearchResponse.data.Result.FilesSkipped,
+        shardsScanned: parsedSearchResponse.data.Result.ShardsScanned,
+        shardsSkipped: parsedSearchResponse.data.Result.ShardsSkipped,
+        shardsSkippedFilter: parsedSearchResponse.data.Result.ShardsSkippedFilter,
+        matchCount: parsedSearchResponse.data.Result.MatchCount,
+        ngramMatches: parsedSearchResponse.data.Result.NgramMatches,
+        ngramLookups: parsedSearchResponse.data.Result.NgramLookups,
+        wait: parsedSearchResponse.data.Result.Wait,
+        matchTreeConstruction: parsedSearchResponse.data.Result.MatchTreeConstruction,
+        matchTreeSearch: parsedSearchResponse.data.Result.MatchTreeSearch,
+        regexpsConsidered: parsedSearchResponse.data.Result.RegexpsConsidered,
+        flushReason: parsedSearchResponse.data.Result.FlushReason
+    });
 
     return {
         ...parsedSearchResponse.data,
