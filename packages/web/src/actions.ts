@@ -1505,6 +1505,6 @@ export const decryptValue = async (iv: string, encryptedValue: string) => {
     return decrypt(iv, encryptedValue);
 }
 
-export const submitFeedback = async (feedback: string) => {
-    await submitFeedbackToNotion(feedback);
+export const submitFeedback = async (feedback: string, email: string) => {
+    await submitFeedbackToNotion(feedback, email);
 }

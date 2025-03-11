@@ -7,7 +7,7 @@ const notion = new Client({
     auth: NOTION_FEEDBACK_INTEGRATION_TOKEN,
 });
 
-export const submitFeedbackToNotion = async (feedback: string) => {
+export const submitFeedbackToNotion = async (feedback: string, email: string) => {
     if (!NOTION_FEEDBACK_INTEGRATION_ID) {
         console.error("NOTION_FEEDBACK_INTEGRATION_ID is not set");
         return;
@@ -29,6 +29,9 @@ export const submitFeedbackToNotion = async (feedback: string) => {
             },
             Feedback: {
                 rich_text: [{ text: { content: feedback } }]
+            },
+            Email: {
+                email: email
             }
         },
     });

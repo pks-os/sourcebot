@@ -107,7 +107,6 @@ export const FilterPanel = ({
             (selectedLanguages.size === 0 ? true : selectedLanguages.has(match.Language))
         )
         );
-
         onFilterChanged(filteredMatches);
     }, [matches, repos, languages, onFilterChanged]);
 
@@ -152,13 +151,16 @@ const aggregateMatches = (
     createEntry: (key: string) => Entry
 ) => {
     return matches
-        .map((match) => match[propName])
-        .filter((key) => key.length > 0)
-        .reduce((aggregation, key) => {
+        .map((match) => ({ 
+            key: match[propName], 
+            matchCount: match.ChunkMatches.length 
+        }))
+        .filter(({ key }) => key.length > 0)
+        .reduce((aggregation, { key, matchCount }) => {
             if (!aggregation[key]) {
                 aggregation[key] = createEntry(key);
             }
-            aggregation[key].count += 1;
+            aggregation[key].count += matchCount;
             return aggregation;
         }, {} as Record<string, Entry>)
 }
